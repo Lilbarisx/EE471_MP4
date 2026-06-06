@@ -12,6 +12,9 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+    defaults:
+      run:
+        working-directory: backend-cloud
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

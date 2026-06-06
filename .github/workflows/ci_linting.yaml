@@ -9,6 +9,9 @@ jobs:
   lint:
     name: CI Linting
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-cloud
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
