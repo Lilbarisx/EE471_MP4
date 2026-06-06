@@ -35,7 +35,7 @@ class RoboMunchStudio extends StatefulWidget {
 
 class _RoboMunchStudioState extends State<RoboMunchStudio> {
   // Connection Settings
-  String _localBackendIp = '192.168.1.37'; // Default local IP (User can override)
+  String _localBackendIp = '10.0.2.2'; // Default IP for Android Emulator (User can override)
   String _localBackendPort = '7860';
   String _cloudBackendIp = '51.20.32.187'; // Default cloud IP (User can override)
   String _cloudBackendPort = '8000';
@@ -348,6 +348,11 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Note: Use 10.0.2.2 for Android Emulator, or your PC\'s Wi-Fi IP for physical phones.',
+                  style: TextStyle(fontFamily: 'serif', fontSize: 11, color: Colors.grey, fontStyle: FontStyle.italic),
+                ),
                 const SizedBox(height: 20),
                 const Text(
                   'Cloud Backend (Server 2) details:',
@@ -434,13 +439,13 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Header (ROBO MUNCH & Avatar)
                 Padding(
-                  padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -448,7 +453,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                         text: const TextSpan(
                           style: TextStyle(
                             fontFamily: 'serif',
-                            fontSize: 32,
+                            fontSize: 30,
                             letterSpacing: 2.0,
                           ),
                           children: [
@@ -460,8 +465,8 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       const SizedBox(width: 15),
                       // Avatar
                       Container(
-                        width: 55,
-                        height: 55,
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: const Color(0xFFC58B45), width: 2),
@@ -469,8 +474,8 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
                           onTap: _openSettingsDialog,
-                          child: Image.network(
-                            '$_localUrl/static/avatar.png',
+                          child: Image.asset(
+                            'assets/avatar.png',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return const CircleAvatar(
@@ -484,7 +489,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       const SizedBox(width: 8),
                       // Settings icon next to avatar
                       IconButton(
-                        icon: const Icon(Icons.settings, color: Color(0xFFC58B45), size: 20),
+                        icon: const Icon(Icons.settings, color: Color(0xFFC58B45), size: 18),
                         onPressed: _openSettingsDialog,
                       ),
                     ],
@@ -496,16 +501,16 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                   'Art Studio',
                   style: TextStyle(
                     fontFamily: 'serif',
-                    fontSize: 22,
+                    fontSize: 20,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
                 // Image Output Box
                 Container(
                   width: double.infinity,
-                  height: 250,
+                  height: 200,
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(15),
@@ -626,11 +631,11 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 // Prompt Input Box Row
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 2.0),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       begin: Alignment.topCenter,
@@ -664,21 +669,21 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       GestureDetector(
                         onTap: _isGeneratingImage || _isProcessingImage ? null : _generateImage,
                         child: Container(
-                          width: 45,
-                          height: 45,
+                          width: 42,
+                          height: 42,
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(color: const Color(0xFFC58B45), width: 1),
                             color: Colors.transparent,
                           ),
-                          child: Image.network(
-                            '$_localUrl/static/paint.png',
+                          child: Image.asset(
+                            'assets/paint.png',
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.brush,
                               color: Color(0xFFC58B45),
-                              size: 20,
+                              size: 18,
                             ),
                           ),
                         ),
@@ -686,7 +691,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
                 // Colorize Button
                 GestureDetector(
@@ -695,7 +700,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       : _processImageCloud,
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
                       gradient: _generatedImageBase64 != null
                           ? const LinearGradient(
@@ -733,24 +738,24 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 15),
 
                 // CHAT STUDIO TITLE
                 const Text(
                   'Chat Studio',
                   style: TextStyle(
                     fontFamily: 'serif',
-                    fontSize: 22,
+                    fontSize: 20,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
                 // Chat Log Output Box
                 Container(
                   width: double.infinity,
-                  height: 250,
-                  padding: const EdgeInsets.all(20),
+                  height: 170,
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       begin: Alignment.topCenter,
@@ -785,7 +790,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       final isUser = message['role'] == 'user';
                       final senderLabel = isUser ? 'YOU' : 'MUNCH';
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: RichText(
                           text: TextSpan(
                             style: const TextStyle(
@@ -816,20 +821,29 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     },
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
-                // Chat Input & Voice Row (Re-aligned to Slide)
+                // Chat Input & Voice Row (Separate Mic and Input Box)
                 Row(
                   children: [
                     // Voice Mic Button (separate circle on the left)
                     GestureDetector(
-                      onTap: _speechEnabled
-                          ? (_isListening ? _stopListening : _startListening)
-                          : null,
+                      onTap: () {
+                        if (!_speechEnabled) {
+                          _initSpeech();
+                          _showErrorSnackbar('Voice recognition is initializing or not supported. Check microphone permissions.');
+                        } else {
+                          if (_isListening) {
+                            _stopListening();
+                          } else {
+                            _startListening();
+                          }
+                        }
+                      },
                       child: Container(
                         width: 45,
                         height: 45,
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -838,8 +852,8 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                           ),
                           color: _isListening ? Colors.red.withValues(alpha: 0.2) : Colors.transparent,
                         ),
-                        child: Image.network(
-                          '$_localUrl/static/Mic.png',
+                        child: Image.asset(
+                          'assets/Mic.png',
                           color: _isListening ? Colors.red : null,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) => Icon(
@@ -854,7 +868,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     // Chat Input Container (Pill-shaped with Textfield & Send Button inside)
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 2.0),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             begin: Alignment.topCenter,
@@ -890,16 +904,16 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                             GestureDetector(
                               onTap: _isChatLoading ? null : _sendChatMessage,
                               child: Container(
-                                width: 45,
-                                height: 45,
+                                width: 42,
+                                height: 42,
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(color: const Color(0xFFC58B45), width: 1),
                                   color: Colors.transparent,
                                 ),
-                                child: Image.network(
-                                  '$_localUrl/static/Send.png',
+                                child: Image.asset(
+                                  'assets/Send.png',
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) => const Icon(
                                     Icons.send,
