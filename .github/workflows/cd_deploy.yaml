@@ -32,8 +32,8 @@ jobs:
             
             cd backend-cloud
             # Run docker-compose build and restart the containers
-            docker-compose down
-            docker-compose up --build -d
+            docker compose down
+            docker compose up --build -d
             
             # Print logs to verify container is running
-            docker-compose ps
+            docker compose ps
