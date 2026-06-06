@@ -37,7 +37,12 @@ Bu sunucu, sohbet botunu (LLM) ve görsel üreticiyi (Stable Diffusion) yerel bi
    ```powershell
    python app.py
    ```
-*Sunucu başlatıldığında modelleri indirmeye başlayacaktır (bu ilk seferde biraz sürebilir). `http://0.0.0.0:7860` adresinde çalışacaktır.*
+*Sunucu başlatıldığında modelleri indirmeye başlayacaktır (bu ilk seferde biraz sürebilir). Sunucu `http://0.0.0.0:7860` adresinde çalışacaktır.*
+
+> [!NOTE]
+> **Önemli Not**: Tarayıcınızdan direkt `http://localhost:7860` adresine girdiğinizde **"Not Found"** hatası almanız tamamen normaldir. Çünkü bu sunucu bir web sitesi barındırmaz, sadece mobil uygulamamız için çalışan bir API'dir.
+> Sunucunun başarıyla çalıştığını doğrulamak için tarayıcınızdan `http://localhost:7860/health` adresine girin. `{"status": "healthy", ...}` şeklinde bir JSON çıktısı görüyorsanız sunucunuz sorunsuz çalışıyor demektir.
+
 
 ---
 
