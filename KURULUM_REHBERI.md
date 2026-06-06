@@ -70,6 +70,10 @@ Bu sunucu normalde bulutta (Docker içinde) çalışacaktır ancak yerel bilgisa
    python manage.py runserver 8000
    ```
 
+> [!NOTE]
+> **Önemli Not**: Tarayıcınızdan direkt `http://127.0.0.1:8000` adresine girdiğinizde **"Page not found (404)"** hatası almanız tamamen doğrudur. Çünkü bu sunucu da bir web arayüzü barındırmaz; sadece `/get/resolution` ve `/convert/grayscale` API uç noktalarını sunar (bu uç noktalar tarayıcıdan düz GET isteğiyle değil, mobil uygulamamızdan görsel dosyasıyla birlikte POST isteğiyle çağrılmalıdır). Sunucunun doğru çalıştığını 4. adımda çalıştırdığınız `python manage.py test` komutuyla zaten doğrulamış oldunuz.
+
+
 ---
 
 ### ADIM 4: Bulut VM (Sanal Makine) Kurulumu
