@@ -17,18 +17,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: const Color(0xFFE5A93C), // Gold
-        scaffoldBackgroundColor: const Color(0xFF16110F), // Very deep warm brown
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFE5A93C),
-          secondary: Color(0xFF8D5B4C), // Terracotta/Brown
-          surface: Color(0xFF251C1A), // Card warm dark
-          onPrimary: Color(0xFF16110F),
-        ),
-        textTheme: const TextTheme(
-          titleLarge: TextStyle(color: Color(0xFFF7EBE8), fontWeight: FontWeight.bold, letterSpacing: 1.2),
-          bodyMedium: TextStyle(color: Color(0xFFDCD1CE)),
-        ),
+        fontFamily: 'serif',
+        scaffoldBackgroundColor: const Color(0xFF1C110E),
         useMaterial3: true,
       ),
       home: const RoboMunchStudio(),
@@ -44,10 +34,10 @@ class RoboMunchStudio extends StatefulWidget {
 }
 
 class _RoboMunchStudioState extends State<RoboMunchStudio> {
-  // Connection Settings (Change these using the settings icon in appbar)
+  // Connection Settings
   String _localBackendIp = '192.168.1.37'; // Default local IP (User can override)
   String _localBackendPort = '7860';
-  String _cloudBackendIp = 'YOUR-VM-IP'; // Default cloud IP (User can override)
+  String _cloudBackendIp = '51.20.32.187'; // Default cloud IP (User can override)
   String _cloudBackendPort = '8000';
 
   // Getters for full URLs
@@ -66,12 +56,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
   String? _imageResolution;
   bool _isGrayscale = false;
 
-  final List<Map<String, String>> _chatHistory = [
-    {
-      'role': 'assistant',
-      'content': 'Hello! I am RoboMunch, your creative assistant. Type a message or use voice command to talk to me!'
-    }
-  ];
+  final List<Map<String, String>> _chatHistory = [];
   bool _isChatLoading = false;
 
   // Speech to Text variables
@@ -184,7 +169,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
         Uri.parse('$_localUrl/generate_image'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'prompt': prompt}),
-      ).timeout(const Duration(seconds: 60)); // Long timeout for local SD generation
+      ).timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -243,7 +228,6 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
         imageBytes,
         filename: 'image.png',
       ));
-      // Ask for base64 JSON response format
       grayRequest.fields['response_format'] = 'json';
 
       final grayResponse = await grayRequest.send();
@@ -268,7 +252,6 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
     }
   }
 
-  // Helper: scroll chat to bottom
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_chatScrollController.hasClients) {
@@ -281,11 +264,10 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
     });
   }
 
-  // Helpers for snackbars
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
+        content: Text(message, style: const TextStyle(fontFamily: 'serif', color: Colors.white)),
         backgroundColor: Colors.redAccent,
         duration: const Duration(seconds: 4),
       ),
@@ -295,14 +277,13 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
   void _showSuccessSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xFFE5A93C),
+        content: Text(message, style: const TextStyle(fontFamily: 'serif', color: Colors.white)),
+        backgroundColor: const Color(0xFFC58B45),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // Settings Panel for IPs
   void _openSettingsDialog() {
     final localIpController = TextEditingController(text: _localBackendIp);
     final localPortController = TextEditingController(text: _localBackendPort);
@@ -313,21 +294,29 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF251C1A),
+          backgroundColor: const Color(0xFF2A110A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Color(0xFF4A2B21)),
+          ),
           title: const Row(
             children: [
-              Icon(Icons.settings, color: Color(0xFFE5A93C)),
+              Icon(Icons.settings, color: Color(0xFFC58B45)),
               SizedBox(width: 10),
-              Text('Connection Settings', style: TextStyle(color: Color(0xFFF7EBE8))),
+              Text(
+                'Connection Settings',
+                style: TextStyle(fontFamily: 'serif', color: Colors.white),
+              ),
             ],
           ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Set Local Backend (Server 1) details:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE5A93C)),
+                  'Local Backend (Server 1) details:',
+                  style: TextStyle(fontFamily: 'serif', fontWeight: FontWeight.bold, color: Color(0xFFD29571)),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -336,8 +325,10 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       flex: 3,
                       child: TextField(
                         controller: localIpController,
+                        style: const TextStyle(color: Color(0xFFD29571)),
                         decoration: const InputDecoration(
                           labelText: 'Local Host IP',
+                          labelStyle: TextStyle(color: Color(0xFFC58B45)),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -347,8 +338,10 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       flex: 2,
                       child: TextField(
                         controller: localPortController,
+                        style: const TextStyle(color: Color(0xFFD29571)),
                         decoration: const InputDecoration(
                           labelText: 'Port',
+                          labelStyle: TextStyle(color: Color(0xFFC58B45)),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -357,8 +350,8 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Set Cloud Backend (Server 2) details:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE5A93C)),
+                  'Cloud Backend (Server 2) details:',
+                  style: TextStyle(fontFamily: 'serif', fontWeight: FontWeight.bold, color: Color(0xFFD29571)),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -367,8 +360,10 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       flex: 3,
                       child: TextField(
                         controller: cloudIpController,
+                        style: const TextStyle(color: Color(0xFFD29571)),
                         decoration: const InputDecoration(
                           labelText: 'VM Cloud IP',
+                          labelStyle: TextStyle(color: Color(0xFFC58B45)),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -378,8 +373,10 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                       flex: 2,
                       child: TextField(
                         controller: cloudPortController,
+                        style: const TextStyle(color: Color(0xFFD29571)),
                         decoration: const InputDecoration(
                           labelText: 'Port',
+                          labelStyle: TextStyle(color: Color(0xFFC58B45)),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -392,12 +389,12 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: const Text('Cancel', style: TextStyle(fontFamily: 'serif', color: Colors.grey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE5A93C),
-                foregroundColor: const Color(0xFF16110F),
+                backgroundColor: const Color(0xFFC58B45),
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 setState(() {
@@ -409,7 +406,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                 Navigator.pop(context);
                 _showSuccessSnackbar('Backend paths updated successfully!');
               },
-              child: const Text('Save'),
+              child: const Text('Save', style: TextStyle(fontFamily: 'serif')),
             ),
           ],
         );
@@ -419,57 +416,100 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final isPortrait = mediaQuery.orientation == Orientation.portrait;
-
-    Widget buildArtStudio() {
-      return Card(
-        color: const Color(0xFF251C1A),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF3E302C), width: 1.5),
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1C110E),
+              Color(0xFF1A0F0D),
+              Color(0xFFE2A884),
+            ],
+            stops: [0.0, 0.2, 1.0],
+          ),
         ),
-        elevation: 6,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Art Studio',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFE5A93C),
-                    ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Header (ROBO MUNCH & Avatar)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          style: TextStyle(
+                            fontFamily: 'serif',
+                            fontSize: 32,
+                            letterSpacing: 2.0,
+                          ),
+                          children: [
+                            TextSpan(text: 'ROBO ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal)),
+                            TextSpan(text: 'MUNCH', style: TextStyle(color: Color(0xFFC58B45), fontWeight: FontWeight.normal)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      // Avatar
+                      Container(
+                        width: 55,
+                        height: 55,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFC58B45), width: 2),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: _openSettingsDialog,
+                          child: Image.network(
+                            '$_localUrl/static/avatar.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const CircleAvatar(
+                                backgroundColor: Color(0xFF2A110A),
+                                child: Icon(Icons.person, color: Color(0xFFC58B45)),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Settings icon next to avatar
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Color(0xFFC58B45), size: 20),
+                        onPressed: _openSettingsDialog,
+                      ),
+                    ],
                   ),
-                  if (_imageResolution != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0x4D8D5B4C),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF8D5B4C), width: 1),
-                      ),
-                      child: Text(
-                        'Res: $_imageResolution',
-                        style: const TextStyle(fontSize: 12, color: Color(0xFFF7EBE8), fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Image Box
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
+                ),
+
+                // ART STUDIO TITLE
+                const Text(
+                  'Art Studio',
+                  style: TextStyle(
+                    fontFamily: 'serif',
+                    fontSize: 22,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Image Output Box
+                Container(
+                  width: double.infinity,
+                  height: 250,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF16110F),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF3E302C), width: 1),
+                    color: Colors.black.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Stack(
@@ -486,22 +526,34 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                         const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: Color(0xFFE5A93C)),
+                            SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC58B45)),
+                              ),
+                            ),
                             SizedBox(height: 12),
-                            Text('Munch is painting...', style: TextStyle(color: Color(0xFFE5A93C), fontStyle: FontStyle.italic)),
+                            Text(
+                              'Munch is painting...',
+                              style: TextStyle(
+                                fontFamily: 'serif',
+                                color: Color(0xFFC58B45),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
                           ],
                         )
                       else
-                        const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.palette_outlined, size: 48, color: Color(0xFF5A4945)),
-                            SizedBox(height: 8),
-                            Text(
-                              'Generated artwork will show up here',
-                              style: TextStyle(color: Color(0xFF5A4945), fontStyle: FontStyle.italic),
-                            ),
-                          ],
+                        const Text(
+                          'No image generated yet.',
+                          style: TextStyle(
+                            fontFamily: 'serif',
+                            color: Color(0xFFD29571),
+                            fontStyle: FontStyle.italic,
+                            fontSize: 16,
+                          ),
                         ),
                       if (_isProcessingImage)
                         Container(
@@ -510,9 +562,19 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CircularProgressIndicator(color: Color(0xFFE5A93C)),
+                                SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC58B45)),
+                                  ),
+                                ),
                                 SizedBox(height: 12),
-                                Text('Processing in the cloud...', style: TextStyle(color: Color(0xFFF7EBE8))),
+                                Text(
+                                  'Processing in the cloud...',
+                                  style: TextStyle(fontFamily: 'serif', color: Colors.white),
+                                ),
                               ],
                             ),
                           ),
@@ -526,12 +588,35 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                             decoration: BoxDecoration(
                               color: Colors.black87,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFE5A93C), width: 1),
+                              border: Border.all(color: const Color(0xFFC58B45), width: 1),
                             ),
                             child: const Text(
                               'GRAYSCALE',
                               style: TextStyle(
-                                color: Color(0xFFE5A93C),
+                                fontFamily: 'serif',
+                                color: Color(0xFFC58B45),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (_imageResolution != null)
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFC58B45), width: 1),
+                            ),
+                            child: Text(
+                              _imageResolution!,
+                              style: const TextStyle(
+                                fontFamily: 'serif',
+                                color: Color(0xFFD29571),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -541,137 +626,156 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              // Prompt Input Box
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _promptController,
-                      style: const TextStyle(color: Color(0xFFF7EBE8)),
-                      decoration: InputDecoration(
-                        hintText: 'Type your prompt here.',
-                        hintStyle: const TextStyle(color: Color(0xFF5A4945)),
-                        filled: true,
-                        fillColor: const Color(0xFF16110F),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFF3E302C)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFF3E302C)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFFE5A93C)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Paint button
-                  InkWell(
-                    onTap: _isGeneratingImage || _isProcessingImage ? null : _generateImage,
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE5A93C),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.brush,
-                        color: Color(0xFF16110F),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Colorize Button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _generatedImageBase64 != null ? const Color(0xFF8D5B4C) : const Color(0xFF3E302C),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  disabledBackgroundColor: const Color(0xFF3E302C),
-                ),
-                onPressed: _generatedImageBase64 == null || _isGeneratingImage || _isProcessingImage
-                    ? null
-                    : _processImageCloud,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.color_lens_outlined),
-                    SizedBox(width: 8),
-                    Text(
-                      'colorize',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1.0),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+                const SizedBox(height: 20),
 
-    Widget buildChatStudio() {
-      return Card(
-        color: const Color(0xFF251C1A),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF3E302C), width: 1.5),
-        ),
-        elevation: 6,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Chat Studio',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFE5A93C),
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Chat Log Output Box
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
+                // Prompt Input Box Row
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF16110F),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF3E302C), width: 1),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF2A110A), Color(0xFF1A0A06)],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFF4A2B21), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _promptController,
+                          style: const TextStyle(fontFamily: 'serif', color: Color(0xFFD29571), fontStyle: FontStyle.italic, fontSize: 16),
+                          decoration: const InputDecoration(
+                            hintText: 'Type your prompt here.',
+                            hintStyle: TextStyle(color: Color(0x99D29571), fontStyle: FontStyle.italic),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: _isGeneratingImage || _isProcessingImage ? null : _generateImage,
+                        child: Container(
+                          width: 45,
+                          height: 45,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFC58B45), width: 1),
+                            color: Colors.transparent,
+                          ),
+                          child: Image.network(
+                            '$_localUrl/static/paint.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                              Icons.brush,
+                              color: Color(0xFFC58B45),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Colorize Button
+                GestureDetector(
+                  onTap: _generatedImageBase64 == null || _isGeneratingImage || _isProcessingImage
+                      ? null
+                      : _processImageCloud,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      gradient: _generatedImageBase64 != null
+                          ? const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0xFF2A110A), Color(0xFF1A0A06)],
+                            )
+                          : const LinearGradient(
+                              colors: [Color(0xFF1C110E), Color(0xFF1C110E)],
+                            ),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: _generatedImageBase64 != null ? const Color(0xFF4A2B21) : Colors.white12,
+                        width: 1,
+                      ),
+                      boxShadow: _generatedImageBase64 != null
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 8),
+                              ),
+                            ]
+                          : [],
+                    ),
+                    child: Text(
+                      'colorize',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'serif',
+                        color: _generatedImageBase64 != null ? Colors.white : Colors.white24,
+                        fontSize: 16,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // CHAT STUDIO TITLE
+                const Text(
+                  'Chat Studio',
+                  style: TextStyle(
+                    fontFamily: 'serif',
+                    fontSize: 22,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Chat Log Output Box
+                Container(
+                  width: double.infinity,
+                  height: 250,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF2A110A), Color(0xFF1A0A06)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF4A2B21), width: 1),
                   ),
                   child: ListView.builder(
                     controller: _chatScrollController,
                     itemCount: _chatHistory.length + (_isChatLoading ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == _chatHistory.length) {
-                        return Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF251C1A),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFE5A93C)),
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              width: 15,
+                              height: 15,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFFC58B45).withValues(alpha: 0.8)),
+                              ),
                             ),
                           ),
                         );
@@ -679,40 +783,31 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
 
                       final message = _chatHistory[index];
                       final isUser = message['role'] == 'user';
-                      return Align(
-                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-                          decoration: BoxDecoration(
-                            color: isUser ? const Color(0xFF8D5B4C) : const Color(0xFF251C1A),
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(16),
-                              topRight: const Radius.circular(16),
-                              bottomLeft: isUser ? const Radius.circular(16) : Radius.zero,
-                              bottomRight: isUser ? Radius.zero : const Radius.circular(16),
+                      final senderLabel = isUser ? 'YOU' : 'MUNCH';
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontFamily: 'serif',
+                              fontSize: 15,
+                              height: 1.4,
                             ),
-                            border: Border.all(
-                              color: isUser ? const Color(0xFFA56D5E) : const Color(0xFF3E302C),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                isUser ? 'YOU' : 'MUNCH',
-                                style: TextStyle(
-                                  fontSize: 10,
+                              TextSpan(
+                                text: '$senderLabel: ',
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  color: isUser ? Colors.white70 : const Color(0xFFE5A93C),
-                                  letterSpacing: 0.8,
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                message['content'] ?? '',
-                                style: const TextStyle(color: Color(0xFFF7EBE8), fontSize: 14),
+                              TextSpan(
+                                text: message['content'] ?? '',
+                                style: const TextStyle(
+                                  color: Color(0xFFD29571),
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ],
                           ),
@@ -721,163 +816,109 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
                     },
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              // Chat Input & Voice Controls
-              Row(
-                children: [
-                  // Microphone Voice Button
-                  InkWell(
-                    onTap: _speechEnabled
-                        ? (_isListening ? _stopListening : _startListening)
-                        : null,
-                    borderRadius: BorderRadius.circular(30),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: _isListening ? Colors.redAccent : const Color(0xFF251C1A),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _isListening ? Colors.red : const Color(0xFF3E302C),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Icon(
-                        _isListening ? Icons.mic : Icons.mic_none,
-                        color: _isListening ? Colors.white : const Color(0xFFE5A93C),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Message Text Field
-                  Expanded(
-                    child: TextField(
-                      controller: _chatController,
-                      style: const TextStyle(color: Color(0xFFF7EBE8)),
-                      decoration: InputDecoration(
-                        hintText: _isListening ? 'Listening...' : 'Type your message here.',
-                        hintStyle: const TextStyle(color: Color(0xFF5A4945)),
-                        filled: true,
-                        fillColor: const Color(0xFF16110F),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFF3E302C)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFF3E302C)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color(0xFFE5A93C)),
-                        ),
-                      ),
-                      onSubmitted: (_) => _sendChatMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Send message button
-                  InkWell(
-                    onTap: _isChatLoading ? null : _sendChatMessage,
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE5A93C),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.send,
-                        color: Color(0xFF16110F),
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+                const SizedBox(height: 20),
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1715),
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE5A93C),
-                shape: BoxShape.circle,
-              ),
-              child: const CircleAvatar(
-                radius: 18,
-                backgroundColor: Color(0xFF251C1A),
-                child: Icon(Icons.person, color: Color(0xFFE5A93C)), // Placeholder avatar
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ROBO MUNCH',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFE5A93C),
-                    letterSpacing: 1.5,
-                  ),
+                // Chat Input & Voice Row (Re-aligned to Slide)
+                Row(
+                  children: [
+                    // Voice Mic Button (separate circle on the left)
+                    GestureDetector(
+                      onTap: _speechEnabled
+                          ? (_isListening ? _stopListening : _startListening)
+                          : null,
+                      child: Container(
+                        width: 45,
+                        height: 45,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _isListening ? Colors.red : const Color(0xFFC58B45),
+                            width: 1,
+                          ),
+                          color: _isListening ? Colors.red.withValues(alpha: 0.2) : Colors.transparent,
+                        ),
+                        child: Image.network(
+                          '$_localUrl/static/Mic.png',
+                          color: _isListening ? Colors.red : null,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color: _isListening ? Colors.red : const Color(0xFFC58B45),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Chat Input Container (Pill-shaped with Textfield & Send Button inside)
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFF2A110A), Color(0xFF1A0A06)],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: const Color(0xFF4A2B21), width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _chatController,
+                                style: const TextStyle(fontFamily: 'serif', color: Color(0xFFD29571), fontStyle: FontStyle.italic, fontSize: 16),
+                                decoration: InputDecoration(
+                                  hintText: _isListening ? 'Listening...' : 'Type your message here.',
+                                  hintStyle: const TextStyle(color: Color(0x99D29571), fontStyle: FontStyle.italic),
+                                  border: InputBorder.none,
+                                ),
+                                onSubmitted: (_) => _sendChatMessage(),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            // Send message button (circular button inside the pill)
+                            GestureDetector(
+                              onTap: _isChatLoading ? null : _sendChatMessage,
+                              child: Container(
+                                width: 45,
+                                height: 45,
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFFC58B45), width: 1),
+                                  color: Colors.transparent,
+                                ),
+                                child: Image.network(
+                                  '$_localUrl/static/Send.png',
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) => const Icon(
+                                    Icons.send,
+                                    color: Color(0xFFC58B45),
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Art & Chat Studio',
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
-                ),
+                const SizedBox(height: 20),
               ],
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Color(0xFFE5A93C)),
-            onPressed: _openSettingsDialog,
-            tooltip: 'Connection Settings',
           ),
-        ],
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1E1715),
-              Color(0xFF16110F),
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: isPortrait
-              ? Column(
-                  children: [
-                    Expanded(flex: 11, child: buildArtStudio()),
-                    const SizedBox(height: 8),
-                    Expanded(flex: 12, child: buildChatStudio()),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(child: buildArtStudio()),
-                    const SizedBox(width: 12),
-                    Expanded(child: buildChatStudio()),
-                  ],
-                ),
         ),
       ),
     );
