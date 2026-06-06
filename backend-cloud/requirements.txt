@@ -1,0 +1,4 @@
+django
+pillow
+django-cors-headers
+gunicorn

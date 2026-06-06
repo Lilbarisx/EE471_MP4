@@ -1,0 +1,8 @@
+flask
+transformers
+torch
+diffusers
+accelerate
+pillow
+soundfile
+librosa
