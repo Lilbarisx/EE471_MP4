@@ -5,6 +5,7 @@ from diffusers import StableDiffusionPipeline
 import warnings
 import os
 import base64
+import threading
 from io import BytesIO
 from PIL import Image
 
@@ -42,17 +43,15 @@ class RoboMunchEngine:
             print(f"Error loading LLM model, falling back to CPU: {e}")
             self.llm = pipeline("text-generation", model="HuggingFaceTB/SmolLM2-360M-Instruct", device="cpu")
 
-        # Text to Image (Stable Diffusion v1.5)
-        print("Loading Stable Diffusion v1.5 model...")
+        # Text to Image (Distilled Stable Diffusion - segmind/tiny-sd for speed & low download footprint)
+        print("Loading distilled Stable Diffusion model (segmind/tiny-sd)...")
         try:
-            # If using CPU, float32 is safer and prevents warnings/errors. If GPU, fp16 is faster.
             torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
             self.tti = StableDiffusionPipeline.from_pretrained(
-                "runwayml/stable-diffusion-v1-5", 
+                "segmind/tiny-sd", 
                 torch_dtype=torch_dtype
             )
             self.tti = self.tti.to(self.device)
-            # Enable attention slicing to save memory on low VRAM GPUs
             if self.device == "cuda":
                 self.tti.enable_attention_slicing()
         except Exception as e:
@@ -96,8 +95,7 @@ class RoboMunchEngine:
         if not prompt: 
             return None
         
-        # Determine steps based on hardware to avoid timeouts
-        steps = 30 if self.device == "cuda" else 10
+        steps = 15 if self.device == "cuda" else 5
         image = self.tti(prompt, num_inference_steps=steps).images[0]
         
         buffered = BytesIO()
@@ -109,7 +107,6 @@ class RoboMunchEngine:
             return ""
         
         self.chat_history.append({"role": "user", "content": user_message})
-        # Format conversation using SmolLM2 templates
         prompt = self.llm.tokenizer.apply_chat_template(
             self.chat_history, tokenize=False, add_generation_prompt=True
         )
@@ -119,34 +116,57 @@ class RoboMunchEngine:
         self.chat_history.append({"role": "assistant", "content": response_text})
         return response_text
 
-# Initialize model engine (lazy loaded on first request to speed up server start, or loaded immediately)
-# We load it immediately to catch startup errors early
+# Background Initialization State
 engine = None
+engine_error = None
+loading_status = "Not started"
 
-def get_engine():
-    global engine
-    if engine is None:
+def load_engine_background():
+    global engine, engine_error, loading_status
+    loading_status = "Loading models..."
+    try:
         engine = RoboMunchEngine()
-    return engine
+        loading_status = "Ready"
+    except Exception as e:
+        engine_error = str(e)
+        loading_status = "Failed"
+        print(f"Failed to load engine background: {e}")
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "healthy", "device": "cuda" if torch.cuda.is_available() else "cpu"})
+    return jsonify({
+        "status": "healthy",
+        "device": "cuda" if torch.cuda.is_available() else "cpu",
+        "engine_status": loading_status,
+        "engine_error": engine_error
+    })
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
+    global engine
+    if engine is None:
+        status_msg = "still downloading and loading models (first-time run might take a couple of minutes)"
+        if engine_error:
+            status_msg = f"failed to load: {engine_error}"
+        return jsonify({"error": f"RoboMunch is {status_msg}. Please try again shortly."}), 503
+
     data = request.json or {}
     message = data.get('message', '')
-    eng = get_engine()
-    response = eng.chat(message)
+    response = engine.chat(message)
     return jsonify({"response": response})
 
 @app.route('/generate_image', methods=['POST'])
 def image_endpoint():
+    global engine
+    if engine is None:
+        status_msg = "still downloading and loading models (first-time run might take a couple of minutes)"
+        if engine_error:
+            status_msg = f"failed to load: {engine_error}"
+        return jsonify({"error": f"RoboMunch is {status_msg}. Please try again shortly."}), 503
+
     data = request.json or {}
     prompt = data.get('prompt', '')
-    eng = get_engine()
-    img_bytes = eng.generate_image(prompt)
+    img_bytes = engine.generate_image(prompt)
     
     if img_bytes is None:
         return jsonify({"error": "Stable Diffusion model not loaded or error during generation"}), 500
@@ -156,13 +176,20 @@ def image_endpoint():
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_endpoint():
+    global engine
+    if engine is None:
+        status_msg = "still downloading and loading models (first-time run might take a couple of minutes)"
+        if engine_error:
+            status_msg = f"failed to load: {engine_error}"
+        return jsonify({"error": f"RoboMunch is {status_msg}. Please try again shortly."}), 503
+
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file found"}), 400
     audio_file = request.files['audio']
-    eng = get_engine()
-    text = eng.transcribe(audio_file.read())
+    text = engine.transcribe(audio_file.read())
     return jsonify({"text": text})
 
 if __name__ == '__main__':
-    # We listen on all interfaces (0.0.0.0) so the mobile app on the same network can access it
+    # Start loading models in the background so Flask starts instantly
+    threading.Thread(target=load_engine_background, daemon=True).start()
     app.run(host='0.0.0.0', port=7860, debug=False)
