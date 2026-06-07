@@ -24,4 +24,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Start server using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "mysite.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "mysite.wsgi:application"]
