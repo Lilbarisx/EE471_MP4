@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/Lilbarisx/EE471_MP4/compare/v1.0.1...v1.0.2) (2026-06-07)
+
+
+### Bug Fixes
+
+* enable Gunicorn access logging to stdout in Dockerfile ([ba78628](https://github.com/Lilbarisx/EE471_MP4/commit/ba78628b25bbb130a2cfdbe218141c2a2eb071de))
+
 ## [1.0.1](https://github.com/Lilbarisx/EE471_MP4/compare/v1.0.0...v1.0.1) (2026-06-07)
 
 
