@@ -169,7 +169,7 @@ class _RoboMunchStudioState extends State<RoboMunchStudio> {
         Uri.parse('$_localUrl/generate_image'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'prompt': prompt}),
-      ).timeout(const Duration(seconds: 60));
+      ).timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
