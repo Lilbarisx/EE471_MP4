@@ -51,5 +51,9 @@ media
 *.sw?
 
 # OS files
-.DS_Store
 Thumbs.db
+
+# Custom guides & videos
+KURULUM_REHBERI.md
+submission_and_video_guide.md
+*.mp4
